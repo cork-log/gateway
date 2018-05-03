@@ -1,0 +1,37 @@
+version: '3.3'
+services:
+        api:
+          build: .
+          stdin_open: true
+          container_name: "api"
+          tty: true
+          ports:
+            - "5000:5000"
+          networks:
+            - backend
+          depends_on:
+            - mongodb
+          environment:
+            - MONGO_URL=mongodb://mongodb:27017/app_development
+          volumes:
+            - type: bind
+              source: .
+              target: /app
+        mongodb:
+          image: aashreys/mongo-auth:latest
+          container_name: "mongodb"
+          environment:
+            - AUTH=yes
+            - MONGODB_ADMIN_USER=admin
+            - MONGODB_ADMIN_PASS=applepie
+            - MONGODB_APPLICATION_DATABASE=gateway
+            - MONGODB_APPLICATION_USER=gateway_dev_user
+            - MONGODB_APPLICATION_PASS=gateway_dev_pass
+          ports:
+              - 27017:27017
+          networks:  
+            - backend
+#          command: mongod --smallfiles --logpath=/dev/null # --quiet
+networks:  
+  backend:
+    driver: bridge
