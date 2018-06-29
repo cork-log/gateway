@@ -2,17 +2,9 @@
 # and its dependencies with the aid of the Mix.Config module.
 use Mix.Config
 
-config :gateway, Gateway.Repo,
-  adapter: Mongo.Ecto,
-  database: "gateway",
-  username: "gateway_dev_user",
-  password: "gateway_dev_pass",
-  port: 27017,
-  hostname: "mongodb"
-
 config :grpc, start_server: true
 
-
+import_config "#{Mix.env}.exs"
 
 
 # This configuration is loaded before any dependency and is restricted

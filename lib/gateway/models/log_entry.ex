@@ -1,7 +1,7 @@
 defmodule Gateway.Models.LogEntry do
   use Gateway.Models.Model
 
-  import Ecto.Query, only: [from: 2]
+  import Ecto.Query
   alias Gateway.Models.LogEntry
   alias Gateway.Repo
 
@@ -25,5 +25,15 @@ defmodule Gateway.Models.LogEntry do
   @spec get(String.t()) :: LogEntry
   def get(id) do
     Repo.one(from(u in LogEntry, where: u.id == ^id))
+  end
+
+  def get_n(source_id, %{take: take, direction: dir, last_timestamp: ts}) do
+    dir = if(:ASCENDING == Proto.PageQuery.Direction.key(dir), do: :asc, else: :desc)
+
+    LogEntry
+    |> where([e], e.source_id == ^source_id)
+    |> order_by([e], {^dir, e.time_occurred})
+    |> limit(^take)
+    |> Repo.all()
   end
 end
