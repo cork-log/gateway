@@ -20,4 +20,9 @@ defmodule Gateway.Models.LogSource do
   def get(id) do
     Repo.one(from(u in LogSource, where: u.id == ^id))
   end
+
+  def get_sources do
+    LogSource
+    |> Repo.all()
+  end
 end
