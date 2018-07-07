@@ -5,7 +5,6 @@ defmodule Gateway.Models.LogEntry do
   alias Gateway.Models.LogEntry
   alias Gateway.Repo
 
-  # weather is the MongoDB collection name
   schema "log_Entry" do
     belongs_to(:source, Gateway.Models.LogSource)
     field(:level, :string)
@@ -30,10 +29,22 @@ defmodule Gateway.Models.LogEntry do
   def get_n(source_id, %{take: take, direction: dir, last_timestamp: ts}) do
     dir = if(:ASCENDING == Proto.PageQuery.Direction.key(dir), do: :asc, else: :desc)
 
-    LogEntry
-    |> where([e], e.source_id == ^source_id)
-    |> order_by([e], {^dir, e.time_occurred})
-    |> limit(^take)
-    |> Repo.all()
+    query =
+      LogEntry
+      |> where([e], e.source_id == ^source_id)
+      |> order_by([e], {^dir, e.time_occurred})
+      |> limit(^take)
+
+    case dir do
+      :asc ->
+        query
+        |> where([e], e.time_occurred <= ^ts)
+        |> Repo.all()
+
+      :desc ->
+        query
+        |> where([e], e.time_occurred >= ^ts)
+        |> Repo.all()
+    end
   end
 end
