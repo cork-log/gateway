@@ -16,10 +16,29 @@ defmodule Gateway.Service.LogEntryService do
   end
 
   @spec insert(Proto.NewEntry.t(), GRPC.Server.Stream.t()) :: Proto.LogEntry.t()
-  def insert(request, _stream) do
-    {:ok, new} = Models.LogEntry.create(from_proto(request))
-    IO.inspect(new)
-    to_proto(new)
+  def insert(request, stream) do
+    IO.inspect(GRPC.Stream.get_headers(stream))
+    token = Map.get(GRPC.Stream.get_headers(stream), "auth", "missing key")
+    IO.inspect(token)
+    source = Models.LogSource.get(request.source_id)
+    IO.inspect(source)
+
+    token =
+      token
+      |> Joken.token()
+      |> Joken.with_signer(Joken.hs256(source.secret_key))
+
+
+    case Joken.verify!(token) do
+      {:ok, claims} ->
+        IO.inspect(claims)
+        {:ok, new} = Models.LogEntry.create(from_proto(request))
+        IO.inspect(new)
+        to_proto(new)
+
+      {:error, message} ->
+        raise message
+    end
   end
 
   @spec get_n(Proto.EntryQuery.t(), GRPC.Server.Stream.t()) :: :ok
