@@ -7,11 +7,14 @@ defmodule Gateway.Application do
   import Supervisor.Spec
   alias Gateway.Service.LogSourceService
   alias Gateway.Service.LogEntryService
+  alias Gateway.Service.SourceJobService
 
   def start(_type, _args) do
     # List all child processes to be supervised
     children = [
-      supervisor(GRPC.Server.Supervisor, [{[LogSourceService, LogEntryService], 50051}]),
+      supervisor(GRPC.Server.Supervisor, [
+        {[LogSourceService, LogEntryService, SourceJobService], 50051}
+      ]),
       worker(Gateway.Repo, [])
     ]
 

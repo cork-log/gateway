@@ -27,7 +27,7 @@ defmodule Gateway.Models.LogEntry do
   end
 
   def get_n(source_id, %{take: take, direction: dir, last_timestamp: ts}) do
-    dir = if(:ASCENDING == Proto.PageQuery.Direction.key(dir), do: :asc, else: :desc)
+    dir = if(:ASCENDING == Proto.Direction.key(dir), do: :asc, else: :desc)
 
     query =
       LogEntry

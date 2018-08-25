@@ -10,6 +10,7 @@ defmodule Gateway.Models.LogSource do
     field(:name, :string)
     field(:secret_key, :string)
     has_many(:contexts, Models.SourceAuthContext, foreign_key: :source_id)
+    has_many(:jobs, Models.SourceJob, foreign_key: :source_id)
   end
 
   @spec create(String.t()) :: {:ok, LogSource}
